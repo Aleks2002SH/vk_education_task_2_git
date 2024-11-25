@@ -108,3 +108,15 @@ knn_with_prototypes_parameters = {
 }
     
 best_knn_with_prototypes = find_best_estimator(best_knn_with_prototypes,knn_with_prototypes_parameters)
+
+from sklearn.ensemble import RandomForestClassifier
+best_rf = RandomForestClassifier()
+rf_parameters = {
+    'n_estimators': [100, 200],
+    'max_depth': [None, 10, 20],
+    'min_samples_split': [2, 5],
+    'min_samples_leaf': [1, 2],
+    'random_state': [random_state]
+}
+
+best_rf = find_best_estimator(best_rf,rf_parameters,n_jobs = 4)
