@@ -31,3 +31,57 @@ def find_best_estimator(classifier,classifier_parameters,cv=5,scoring = roc_auc_
     print('Best estimator score',val_score)
     return grid_search_alg.best_estimator_
 
+from sklearn.cluster import KMeans
+from sklearn.base import BaseEstimator, ClassifierMixin
+
+class KNN_with_prototypes_classifier(BaseEstimator, ClassifierMixin):
+    def __init__(self,random_state = None,n_prototypes = 1,n_neighbors=3,weights='uniform',metric='minkowski'):
+        self.prototypes = []
+        self.random_state = random_state
+        self.n_prototypes = n_prototypes
+        self.n_neighbors = n_neighbors
+        self.weights = weights
+        self.metric = metric
+        self.knn = KNeighborsClassifier(n_neighbors = n_neighbors,weights = weights,metric = metric)
+        pass
+    def get_params(self, deep=True):
+        return {
+            'random_state': self.random_state,
+            'n_prototypes': self.n_prototypes,
+            'n_neighbors': self.n_neighbors,
+            'weights': self.weights,
+            'metric': self.metric
+        }
+
+    def set_params(self, **params):
+        for key, value in params.items():
+            setattr(self, key, value)
+        if 'n_neighbors' in params or 'weights' in params or 'metric' in params:
+            self.knn = KNeighborsClassifier(
+                n_neighbors=self.n_neighbors,
+                weights=self.weights,
+                metric=self.metric
+            )
+        return self
+    def fit(self, x_train, y_train):
+        self.prototypes = []
+        classes_to_classify = np.unique(y_train)
+        y_prototypes = []
+        for cls in classes_to_classify:
+            x_train_cls = x_train[y_train==cls]
+            kmeans = KMeans(n_clusters=self.n_prototypes, random_state=self.random_state)
+            kmeans.fit(x_train_cls)
+            self.prototypes.append(kmeans.cluster_centers_)
+            y_prototypes.append(np.full(self.n_prototypes, cls))
+        y_prototypes = np.hstack(y_prototypes)
+        self.prototypes = np.vstack(self.prototypes)
+        self.knn.fit(self.prototypes,y_prototypes)
+        return self
+    def return_etalons(self):
+        return self.prototypes
+    def predict(self, x_test):
+        return self.knn.predict(x_test)
+    def predict_proba(self, x_test):
+        return self.knn.predict_proba(x_test)
+    
+    
