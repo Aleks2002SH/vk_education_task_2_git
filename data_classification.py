@@ -7,6 +7,8 @@ from sklearn.metrics import roc_auc_score, make_scorer
 from sklearn.model_selection import GridSearchCV
 from sklearn.cluster import KMeans
 from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.ensemble import StackingClassifier
+from sklearn.linear_model import LogisticRegression
 
 random_state=42
 
@@ -120,3 +122,20 @@ rf_parameters = {
 }
 
 best_rf = find_best_estimator(best_rf,rf_parameters,n_jobs = 4)
+
+
+base_learners = [
+    ('rf', RandomForestClassifier(n_estimators= 200,random_state=random_state,max_depth = 20,min_samples_leaf=1,min_samples_split=5)),
+    ('knn', KNN_with_prototypes_classifier(random_state=random_state,metric='euclidean',
+                                                 n_neighbors = 5,n_prototypes=30,weights='distance'))
+]
+
+meta_learner = LogisticRegression()
+
+stacking_clf = StackingClassifier(estimators=base_learners, final_estimator=meta_learner)
+
+stacking_clf.fit(X_train,y_train)
+
+preds = stacking_clf.predict_proba(X_val)
+val_score = roc_auc_score(y_val,preds,multi_class = 'ovr')
+print(val_score)
