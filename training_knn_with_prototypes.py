@@ -85,3 +85,12 @@ class KNN_with_prototypes_classifier(BaseEstimator, ClassifierMixin):
         return self.knn.predict_proba(x_test)
     
     
+best_knn_with_prototypes = KNN_with_prototypes_classifier(random_state=42)
+knn_with_prototypes_parameters = {
+    'n_neighbors':list(range(3,6)),
+    'weights':['distance'],
+    'metric':['euclidean','manhattan','chebyshev','cosine'],
+    'n_prototypes':[10,20,30]
+}
+    
+best_knn_with_prototypes = find_best_estimator(best_knn_with_prototypes,knn_with_prototypes_parameters)
