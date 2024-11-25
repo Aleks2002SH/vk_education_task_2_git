@@ -29,3 +29,7 @@ for col in cols[:-1]:
     if number_of_unique_values<X.shape[0]:
         print(f'Columns - {col}, number of unique values - {number_of_unique_values}')
 print(f'Unique classes - {y.unique()}')
+knn_neighbors = 10
+imputer = KNNImputer(n_neighbors = knn_neighbors)
+X_imp = imputer.fit_transform(X)
+X_train, X_val, y_train, y_val = train_test_split(X_imp, y, test_size=0.2, random_state=random_state)
