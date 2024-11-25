@@ -30,3 +30,15 @@ def find_best_estimator(classifier,classifier_parameters,cv=5,scoring = roc_auc_
     val_score = roc_auc_score(y_val,preds,multi_class = 'ovr')
     print('Best estimator score',val_score)
     return grid_search_alg.best_estimator_
+
+from sklearn.ensemble import RandomForestClassifier
+best_rf = RandomForestClassifier()
+rf_parameters = {
+    'n_estimators': [100, 200],
+    'max_depth': [None, 10, 20],
+    'min_samples_split': [2, 5],
+    'min_samples_leaf': [1, 2],
+    'random_state': [random_state]
+}
+
+best_rf = find_best_estimator(best_rf,rf_parameters,n_jobs = 4)
