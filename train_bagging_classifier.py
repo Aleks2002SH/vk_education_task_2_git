@@ -72,3 +72,19 @@ class KNN_with_prototypes_classifier(BaseEstimator, ClassifierMixin):
         return self.knn.predict(x_test)
     def predict_proba(self, x_test):
         return self.knn.predict_proba(x_test)
+    
+from sklearn.ensemble import BaggingClassifier
+
+bagging_clf = BaggingClassifier(
+    base_estimator=KNN_with_prototypes_classifier(random_state=random_state,metric='euclidean',
+                                                 n_neighbors = 5,n_prototypes=30,weights='distance'),
+    n_estimators=30, 
+    max_samples=0.8,
+    bootstrap=True,  
+    random_state=random_state
+)
+bagging_clf.fit(X_train,y_train)
+
+preds = bagging_clf.predict_proba(X_val)
+val_score = roc_auc_score(y_val,preds,multi_class = 'ovr')
+print(val_score)
